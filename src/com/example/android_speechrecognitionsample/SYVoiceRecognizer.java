@@ -21,6 +21,11 @@ public class SYVoiceRecognizer {
 	private SpeechRecognizer mRecognizer = null;
 	private long mErrorTick = 0;
 	
+	private SYVoiceRecognizerListener mListener = null;
+	public interface SYVoiceRecognizerListener { 
+		public void onDidRecv(final String message);
+	};
+	
 	public SYVoiceRecognizer(Activity activity) {
 		mActivity = activity;
 		mRecognizer = SpeechRecognizer.createSpeechRecognizer(activity);
@@ -40,8 +45,17 @@ public class SYVoiceRecognizer {
 				500);
 	}
 
+	public void SetListener(SYVoiceRecognizerListener listener)
+	{
+		this.mListener = listener;
+	}
+	
 	public void Start() {
 		MuteAudio(mActivity); 
+		mRecognizer.destroy();
+		mRecognizer = null;
+		mRecognizer = SpeechRecognizer.createSpeechRecognizer(mActivity);
+		mRecognizer.setRecognitionListener(onRecognition);
 		mRecognizer.startListening(mIntent);
 		UnMuteAudio(mActivity);
 	}
@@ -102,14 +116,17 @@ public class SYVoiceRecognizer {
 	            mError = " client"; 
 	            break;
 	        case SpeechRecognizer.ERROR_SPEECH_TIMEOUT: 
+	        	Stop();
 	            mError = " speech time out" ; 
 	            Start();
 	            break;
 	        case SpeechRecognizer.ERROR_NO_MATCH: 
+	        	Stop();
 	            mError = " no match" ; 
 	            Start(); 
 	            break;
 	        case SpeechRecognizer.ERROR_RECOGNIZER_BUSY: 
+	        	Stop();
 	            mError = " recogniser busy" ; 
 	            break;
 	        case SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS: 
@@ -149,6 +166,10 @@ public class SYVoiceRecognizer {
 				sb.append(res + "\n");
 			}
 
+			if (mListener != null)
+			{
+				mListener.onDidRecv(sb.toString());
+			}
 			Log.d("TTTTT", "RecognitionListener onResults: " + sb.toString());
 			Start();
 		}

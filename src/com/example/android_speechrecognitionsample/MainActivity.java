@@ -19,12 +19,13 @@ public class MainActivity extends Activity {
 	private Button mButton = null;
 	private static final int RQS_VOICE_RECOGNITION = 1;
 	private SYVoiceRecognizer mRecognizer = null;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		mRecognizer = new SYVoiceRecognizer(MainActivity.this);
-		
+
 		mTextView = (TextView) findViewById(R.id.textView1);
 		mButton = (Button) findViewById(R.id.button1);
 		mButton.setOnClickListener(onClicked);
@@ -54,27 +55,31 @@ public class MainActivity extends Activity {
 		@Override
 		public void onClick(View v) {
 			// TODO Auto-generated method stub
-			
+
 			int method = 2;
-			if (method == 1)
-			{
-				Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-				
-				//Specify language
-		        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.TRADITIONAL_CHINESE);
-		        intent.putExtra(RecognizerIntent.EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE, Locale.TRADITIONAL_CHINESE);
-		        // Specify language model
-		        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-		        // Specify how many results to receive
-		        intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
-		        // Title
-		        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Start Speech");
-		        // Start listening	
+			if (method == 1) {
+				Intent intent = new Intent(
+						RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+
+				// Specify language
+				intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE,
+						Locale.TRADITIONAL_CHINESE);
+				intent.putExtra(
+						RecognizerIntent.EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE,
+						Locale.TRADITIONAL_CHINESE);
+				// Specify language model
+				intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+						RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+				// Specify how many results to receive
+				intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
+				// Title
+				intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Start Speech");
+				// Start listening
 				startActivityForResult(intent, RQS_VOICE_RECOGNITION);
-			} else if (method == 2){
+			} else if (method == 2) {
 				mRecognizer.Start();
 			}
-			
+
 		}
 	};
 
@@ -89,6 +94,27 @@ public class MainActivity extends Activity {
 				String firstMatch = (String) result.get(0);
 				mTextView.setText(firstMatch);
 			}
-		} 
+		}
+	}
+
+	@Override
+	protected void onDestroy() {
+		// TODO Auto-generated method stub
+		mRecognizer.Destory();
+		super.onDestroy();
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		// TODO Auto-generated method stub
+		mRecognizer.Destory(); 
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		// TODO Auto-generated method stub 
+		mRecognizer.Start(); 
 	}
 }
